@@ -1,14 +1,14 @@
 const express = require('express');
 const bodyParser = require('body-parser')
 const webpack = require('webpack')
-const webpackDevMiddleWare = require('webpack-dev-middleware')
-const webpackHotMiddleWare = require('webpack-hot-middleware')
+const webpackDevMiddleware = require('webpack-dev-middleware')
+const webpackHotMiddleware = require('webpack-hot-middleware')
 const WebpackConfig = require('./webpack.config.js')
 
 const app = express();
 const compiler = webpack(WebpackConfig)
 
-app.use(webpackDevMiddleWare(compiler, {
+app.use(webpackDevMiddleware(compiler, {
   publicPath: '__build__',
   stats: {
     colors: true,
@@ -16,7 +16,9 @@ app.use(webpackDevMiddleWare(compiler, {
   }
 }))
 
-app.use(webpackHotMiddleWare(compiler))
+
+app.use(webpackHotMiddleware(compiler))
+
 app.use(express.static(__dirname))
 
 app.use(bodyParser.json())
@@ -34,6 +36,23 @@ router.get('/simple/get', function (req, res) {
 
 router.get('/base/get', function (req, res) {
   res.json(req.query)
+})
+
+router.post('/base/post', function (req, res) {
+  res.json(req.body)
+})
+
+router.post('/base/buffer', function (req, res) {
+  let msg = [];
+  req.on('data', (chunk) => {
+    if (chunk) {
+      msg.push(chunk)
+    }
+  })
+  req.on('end', () => {
+    let buf = Buffer.concat(msg);
+    res.json(buf.toJSON())
+  })
 })
 
 app.use(router)
