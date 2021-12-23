@@ -9,13 +9,12 @@ const app = express();
 const compiler = webpack(WebpackConfig)
 
 app.use(webpackDevMiddleware(compiler, {
-  publicPath: '__build__',
+  publicPath: '/__build__/',
   stats: {
     colors: true,
     chunks: false
   }
 }))
-
 
 app.use(webpackHotMiddleware(compiler))
 
